@@ -2,6 +2,7 @@
 <link rel="import" href="https://polygit.org/components/google-map/google-map.html">
 <link rel="import" href="https://polygit.org/components/google-map/google-map-point.html">
 <link rel="import" href="https://polygit.org/components/google-map/google-map-poly.html">
+<link rel="import" href="https://polygit.org/components/iron-ajax/iron-ajax.html">
 
 <dom-module id="my-map">
   <template>
@@ -11,7 +12,10 @@
         height: 100vh;
       }
     </style>
-    <google-map latitude="0" longtitude="0" zoom="1">
+
+    <iron-ajax url="regions.geojson" last-response="{{regionsData}}" auto></iron-ajax>
+
+    <google-map map="{{map}}" latitude="0" longtitude="0" zoom="1">
       <template is="dom-repeat" items="[[data.paths]]" as="path">
         <google-map-poly geodesic>
           <google-map-point latitude="[[_getPointCoord(path, 0, 0)]]" longitude="[[_getPointCoord(path, 0, 1)]]"></google-map-point>
@@ -136,10 +140,25 @@
               ["ZRH", "FRA"],
               ["FRA", "YOW"],
               // Apr 2016
-              ["SFO", "ICN"]
+              ["SFO", "ICN"],
+              // July 2016
+              ["SFO", "DEN"]
             ]
           }
-        }
+        },
+
+        regionsData: Object,
+
+        map: Object
+      },
+
+      observers: [
+        '_addRegionsDataToMap(regionsData, map)'
+      ],
+
+      _addRegionsDataToMap: function(regionsData, map) {
+        // Map may initially be null, but this observer will be run again once it is not.
+        if (map) map.data.addGeoJson(regionsData)
       },
       
       _getPointCoord: function(path, pointIndex, coordIndex) {
