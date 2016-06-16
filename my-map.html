@@ -2,24 +2,29 @@
 <link rel="import" href="https://polygit.org/components/google-map/google-map.html">
 <link rel="import" href="https://polygit.org/components/google-map/google-map-point.html">
 <link rel="import" href="https://polygit.org/components/google-map/google-map-poly.html">
-<link rel="import" href="https://polygit.org/components/iron-ajax/iron-ajax.html">
 
 <dom-module id="my-map">
   <template>
     <style>
       :host {
         display: block;
-        height: 100vh;
       }
     </style>
 
-    <iron-ajax url="regions.geojson" last-response="{{regionsData}}" auto></iron-ajax>
-
-    <google-map map="{{map}}" latitude="0" longtitude="0" zoom="1">
+    <google-map id="googleMap" latitude="30" longitude="-100" zoom="2"
+        styles="[[_mapStyles]]" on-google-map-ready="_googleMapReady">
+      <!--
+        Use Google Maps Polylines instead of GeoJSON LineStrings for flight paths since
+        geodesic LineStrings are not supported.
+      -->
       <template is="dom-repeat" items="[[data.paths]]" as="path">
-        <google-map-poly geodesic>
-          <google-map-point latitude="[[_getPointCoord(path, 0, 0)]]" longitude="[[_getPointCoord(path, 0, 1)]]"></google-map-point>
-          <google-map-point latitude="[[_getPointCoord(path, 1, 0)]]" longitude="[[_getPointCoord(path, 1, 1)]]"></google-map-point>
+        <google-map-poly geodesic stroke-color="#E74C3C" z-index="1">
+          <google-map-point
+              latitude="[[_getPointCoord(path, 0, 0)]]"
+              longitude="[[_getPointCoord(path, 0, 1)]]"></google-map-point>
+          <google-map-point
+              latitude="[[_getPointCoord(path, 1, 0)]]"
+              longitude="[[_getPointCoord(path, 1, 1)]]"></google-map-point>
         </google-map-poly>
       </template>
     </google-map>
@@ -30,6 +35,12 @@
       is: 'my-map',
       
       properties:{
+
+        regionsSrc: {
+          type: String,
+          value: 'regions.geojson'
+        },
+
         data: {
           type: Object,
           value: {
@@ -147,18 +158,37 @@
           }
         },
 
-        regionsData: Object,
+        _mapStyles: {
+          type: Array,
+          value: [
+            {
+              featureType: 'water',
+              stylers: [{ color: '#3498DB' }]
+            },
+            {
+              featureType: 'landscape',
+              stylers: [{ color: '#ECF0F1' }]
+            }
+          ]
+        },
 
-        map: Object
+        _dataStyle: {
+          type: Object,
+          value: {
+            fillColor: '#2C3E50',
+            strokeColor: '#2C3E50',
+            zIndex: 0
+          }
+        }
+
       },
 
-      observers: [
-        '_addRegionsDataToMap(regionsData, map)'
-      ],
-
-      _addRegionsDataToMap: function(regionsData, map) {
-        // Map may initially be null, but this observer will be run again once it is not.
-        if (map) map.data.addGeoJson(regionsData)
+      _googleMapReady: function() {
+        if (this.regionsSrc) {
+          var mapData = this.$.googleMap.map.data;
+          mapData.setStyle(this._dataStyle);
+          mapData.loadGeoJson(this.regionsSrc);
+        }
       },
       
       _getPointCoord: function(path, pointIndex, coordIndex) {
