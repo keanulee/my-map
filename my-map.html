@@ -11,7 +11,7 @@
       }
     </style>
 
-    <google-map id="googleMap" latitude="30" longitude="-100" zoom="2"
+    <google-map latitude="30" longitude="-100" zoom="2"
         styles="[[_mapStyles]]" on-google-map-ready="_googleMapReady">
       <!--
         Use Google Maps Polylines instead of GeoJSON LineStrings for flight paths since
@@ -51,6 +51,7 @@
               "YYC": [51.1251, -114.0169],
               "SFO": [37.6213, -122.3790],
               "YYZ": [43.6777, -79.6248],
+              "TPE": [25.0797, 121.2342],
               "LAX": [33.9416, -118.4085],
               "PHX": [33.4373, -112.0078],
               "DEN": [39.8561, -104.6737],
@@ -80,6 +81,7 @@
               "URT": [9.1361, 99.1392],
               "HKT": [8.1111, 98.3065],
               "DEL": [28.5562, 77.1000],
+              "LGW": [51.1537, -0.1821],
               "AMS": [52.3105, 4.7683],
               "BRU": [50.9010, 4.4856],
               "ZRH": [47.4582, 8.5555],
@@ -93,6 +95,8 @@
               ["YYC", "SFO"],
               ["SFO", "HKG"],
               ["YYC", "YYZ"],
+              ["HKG", "TPE"],
+              ["TPE", "SFO"],
               ["YYC", "LAX"],
               ["YYC", "PHX"],
               ["YYC", "DEN"],
@@ -146,14 +150,12 @@
               ["HKT", "BKK"],
               ["BKK", "DEL"],
               ["DEL", "LHR"],
-              ["LHR", "AMS"],
+              ["LGW", "AMS"],
               ["BRU", "ZRH"],
               ["ZRH", "FRA"],
               ["FRA", "YOW"],
               // Apr 2016
               ["SFO", "ICN"],
-              // July 2016
-              ["SFO", "DEN"]
             ]
           }
         },
@@ -176,16 +178,15 @@
           type: Object,
           value: {
             fillColor: '#2C3E50',
-            strokeColor: '#2C3E50',
-            zIndex: 0
+            strokeColor: '#2C3E50'
           }
         }
 
       },
 
-      _googleMapReady: function() {
+      _googleMapReady: function(event) {
         if (this.regionsSrc) {
-          var mapData = this.$.googleMap.map.data;
+          var mapData = event.target.map.data;
           mapData.setStyle(this._dataStyle);
           mapData.loadGeoJson(this.regionsSrc);
         }
