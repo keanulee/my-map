@@ -1,0 +1,15 @@
+{
+  "name": "my-map",
+  "homepage": "",
+  "authors": [
+    "Keanu Lee"
+  ],
+  "description": "",
+  "main": "",
+  "license": "",
+  "private": true,
+  "dependencies": {
+    "polymer": "1",
+    "google-map": "^1.2.0"
+  }
+}
